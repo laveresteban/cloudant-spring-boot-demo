@@ -2,14 +2,12 @@ package com.example.cloudantdemo.book;
 
 import com.example.cloudantdemo.config.CloudantProperties;
 import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.AllDocsResult;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import com.ibm.cloud.cloudant.v1.model.DeleteDocumentOptions;
 import com.ibm.cloud.cloudant.v1.model.FindResult;
 import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
 import com.ibm.cloud.cloudant.v1.model.GetDocumentOptions;
-import com.ibm.cloud.cloudant.v1.model.PostAllDocsOptions;
 import com.ibm.cloud.cloudant.v1.model.PostDocumentOptions;
 import com.ibm.cloud.cloudant.v1.model.PostFindOptions;
 import com.ibm.cloud.cloudant.v1.model.PutDatabaseOptions;
@@ -74,16 +72,19 @@ public class BookService {
         return toBook(doc);
     }
 
+    /**
+     * Queries by type in the database rather than filtering an {@code _all_docs} page in
+     * memory, so {@code limit} counts books only and other document types cannot crowd them out.
+     */
     public List<Book> list(int limit) {
-        AllDocsResult result = client.postAllDocs(
-                new PostAllDocsOptions.Builder().db(db).includeDocs(true).limit(limit).build()
+        FindResult result = client.postFind(
+                new PostFindOptions.Builder().db(db)
+                        .selector(Map.of(TYPE_FIELD, BOOK_TYPE))
+                        .limit(limit)
+                        .build()
         ).execute().getResult();
 
-        return result.getRows().stream()
-                .map(row -> row.getDoc())
-                .filter(doc -> doc != null && BOOK_TYPE.equals(doc.get(TYPE_FIELD)))
-                .map(this::toBook)
-                .toList();
+        return result.getDocs().stream().map(this::toBook).toList();
     }
 
     public List<Book> findByAuthor(String author) {
