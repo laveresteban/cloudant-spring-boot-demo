@@ -147,6 +147,22 @@ class BookServiceIntegrationTest {
     }
 
     @Test
+    void listReturnsRequestedLimitEvenWhenOtherDocumentsComeFirst() {
+        newService();
+        // _all_docs is ordered by id, so these invoices fill the first page of an unfiltered scan.
+        for (int i = 0; i < 30; i++) {
+            Document other = new Document();
+            other.put("type", "invoice");
+            cloudant.postDocument(new PostDocumentOptions.Builder().db(db).document(other).build())
+                    .execute();
+        }
+        service.create(new BookRequest("Dune", "Frank Herbert", 1965));
+        service.create(new BookRequest("Emma", "Jane Austen", 1815));
+
+        assertThat(service.list(2)).hasSize(2);
+    }
+
+    @Test
     void searchByAuthorReturnsMatchingBooksOnly() {
         newService();
         service.create(new BookRequest("Dune", "Frank Herbert", 1965));

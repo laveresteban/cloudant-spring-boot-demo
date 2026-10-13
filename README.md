@@ -114,7 +114,7 @@ src/main/java/com/example/cloudantdemo/
 ├── book/
 │   ├── Book.java                    API response model
 │   ├── BookRequest.java            Validated request body
-│   ├── BookService.java             Cloudant SDK calls (documents, _all_docs, _find)
+│   ├── BookService.java             Cloudant SDK calls (documents, _find)
 │   ├── BookController.java          REST endpoints
 │   └── DatabaseInitializer.java     Creates the database on startup
 └── web/
@@ -130,7 +130,7 @@ src/main/java/com/example/cloudantdemo/
 | Read document   | `getDocument(GetDocumentOptions)`       |
 | Replace         | `putDocument(PutDocumentOptions)`       |
 | Delete          | `deleteDocument(DeleteDocumentOptions)` |
-| List            | `postAllDocs(PostAllDocsOptions)`       |
+| List            | `postFind(PostFindOptions)`             |
 | Query           | `postFind(PostFindOptions)`             |
 
 The client is created with `new Cloudant(Cloudant.DEFAULT_SERVICE_NAME, authenticator)`
