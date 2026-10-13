@@ -86,6 +86,23 @@ curl "http://localhost:8080/api/books/search?author=Frank%20Herbert"
 curl -X DELETE "http://localhost:8080/api/books/<id>?rev=<rev>"
 ```
 
+## Tests
+
+```bash
+mvn test
+```
+
+| Test class                       | What it covers                                                      |
+|----------------------------------|---------------------------------------------------------------------|
+| `BookControllerTest`             | HTTP contract: status codes, validation, `Location` header, params  |
+| `ApiExceptionHandlerTest`        | SDK exceptions mapped to 404, 409, 403 and 502                       |
+| `BookServiceTest`                | Document mapping, Mango selector, database probe, options sent       |
+| `CloudantConfigTest`             | Authenticator selection and property binding                        |
+| `DatabaseInitializerTest`        | Database is ensured on startup                                      |
+| `BookServiceIntegrationTest`     | Real CouchDB via Testcontainers: CRUD, revision conflicts, search    |
+
+Only the integration test needs Docker. Without Docker it is skipped and the rest still run.
+
 ## Project layout
 
 ```
