@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Maven dependencies, including Spring Boot and the Cloudant SDK.
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      spring:
+        patterns:
+          - "org.springframework*"
+
+  # Action versions used in .github/workflows.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
