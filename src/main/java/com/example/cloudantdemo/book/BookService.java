@@ -87,11 +87,11 @@ public class BookService {
         return result.getDocs().stream().map(this::toBook).toList();
     }
 
-    public List<Book> findByAuthor(String author) {
+    public List<Book> findByAuthor(String author, int limit) {
         Map<String, Object> selector = Map.of(TYPE_FIELD, BOOK_TYPE, "author", author);
 
         FindResult result = client.postFind(
-                new PostFindOptions.Builder().db(db).selector(selector).build()
+                new PostFindOptions.Builder().db(db).selector(selector).limit(limit).build()
         ).execute().getResult();
 
         return result.getDocs().stream().map(this::toBook).toList();

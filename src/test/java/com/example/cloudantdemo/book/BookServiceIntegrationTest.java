@@ -168,8 +168,18 @@ class BookServiceIntegrationTest {
         service.create(new BookRequest("Dune", "Frank Herbert", 1965));
         service.create(new BookRequest("Emma", "Jane Austen", 1815));
 
-        List<Book> results = service.findByAuthor("Jane Austen");
+        List<Book> results = service.findByAuthor("Jane Austen", 25);
 
         assertThat(results).extracting(Book::title).containsExactly("Emma");
+    }
+
+    @Test
+    void searchByAuthorHonoursLimitAboveTheDatabaseDefault() {
+        newService();
+        for (int i = 0; i < 30; i++) {
+            service.create(new BookRequest("Volume " + i, "Prolific Author", 1900 + i));
+        }
+
+        assertThat(service.findByAuthor("Prolific Author", 30)).hasSize(30);
     }
 }
