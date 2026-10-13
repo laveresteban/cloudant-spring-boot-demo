@@ -25,3 +25,18 @@ jobs:
       # The Testcontainers integration test needs Docker, which ubuntu-latest provides.
       - name: Build and test
         run: ./mvnw -B verify
+
+      # The integration test skips itself when Docker is missing, which would leave CI green
+      # with no database coverage. Fail the job if its report is missing or shows a skip.
+      - name: Require the integration test to run
+        run: |
+          report=$(ls target/surefire-reports/TEST-*BookServiceIntegrationTest.xml 2>/dev/null | head -n 1)
+          if [ -z "$report" ]; then
+            echo "::error::BookServiceIntegrationTest report not found"
+            exit 1
+          fi
+          if grep -q '<skipped' "$report"; then
+            echo "::error::BookServiceIntegrationTest was skipped; Docker is required in CI"
+            exit 1
+          fi
+          echo "Integration test ran: $report"
