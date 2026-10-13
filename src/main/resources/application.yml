@@ -1,0 +1,19 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  mvc:
+    # Return RFC 9457 problem details for framework errors too (bad JSON, missing params).
+    problemdetails:
+      enabled: true
+
+cloudant:
+  # IBM Cloudant:  https://<account>.cloudantnosqldb.appdomain.cloud
+  # Local CouchDB: http://localhost:5984
+  url: ${CLOUDANT_URL:http://localhost:5984}
+  # IAM API key (IBM Cloudant). Leave empty when using username/password.
+  api-key: ${CLOUDANT_APIKEY:}
+  # Basic auth (CouchDB). Leave empty for IAM or unauthenticated access.
+  username: ${CLOUDANT_USERNAME:}
+  password: ${CLOUDANT_PASSWORD:}
+  database: ${CLOUDANT_DB:books}

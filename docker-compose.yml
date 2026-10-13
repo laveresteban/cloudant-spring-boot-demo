@@ -1,0 +1,16 @@
+# Local Apache CouchDB for development. Cloudant is API-compatible with CouchDB,
+# so the same code runs against both. Start with: docker compose up -d
+services:
+  couchdb:
+    image: couchdb:3.4
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    ports:
+      # Override the host port with COUCHDB_PORT if 5984 is already in use.
+      - "${COUCHDB_PORT:-5984}:5984"
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+
+volumes:
+  couchdb-data:
