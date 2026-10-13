@@ -195,12 +195,13 @@ class BookServiceTest {
         given(client.postFind(any(PostFindOptions.class))).willReturn(call);
         given(call.execute().getResult()).willReturn(result);
 
-        List<Book> books = service.findByAuthor("Frank Herbert");
+        List<Book> books = service.findByAuthor("Frank Herbert", 40);
 
         ArgumentCaptor<PostFindOptions> captor = ArgumentCaptor.forClass(PostFindOptions.class);
         verify(client).postFind(captor.capture());
         Map<String, Object> selector = captor.getValue().selector();
         assertThat(selector).isEqualTo(Map.of("type", "book", "author", "Frank Herbert"));
+        assertThat(captor.getValue().limit()).isEqualTo(40);
         assertThat(books).hasSize(1);
     }
 

@@ -57,7 +57,7 @@ If neither an API key nor a username is set, the client sends unauthenticated re
 |----------|---------------------------------------|----------------------------------------------------|
 | `POST`   | `/api/books`                          | Create a book (`201 Created` with `Location`)     |
 | `GET`    | `/api/books?limit=25`                 | List books (`limit` 1–200)                         |
-| `GET`    | `/api/books/search?author=...`        | Find books by author (Mango `_find` query)         |
+| `GET`    | `/api/books/search?author=...&limit=25` | Find books by author (`limit` 1–200, default 25) |
 | `GET`    | `/api/books/{id}`                     | Get one book                                       |
 | `PUT`    | `/api/books/{id}?rev=...`             | Replace a book; `rev` must be the current revision |
 | `DELETE` | `/api/books/{id}?rev=...`             | Delete a book (`204 No Content`)                   |
