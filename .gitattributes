@@ -1,0 +1,2 @@
+# The Unix wrapper must keep LF endings or it fails on Linux runners.
+mvnw text eol=lf
