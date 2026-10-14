@@ -2,15 +2,12 @@ package com.example.cloudantdemo.book;
 
 import com.example.cloudantdemo.config.CloudantProperties;
 import com.ibm.cloud.cloudant.v1.Cloudant;
-import com.ibm.cloud.cloudant.v1.model.AllDocsResult;
 import com.ibm.cloud.cloudant.v1.model.DatabaseInformation;
 import com.ibm.cloud.cloudant.v1.model.DeleteDocumentOptions;
-import com.ibm.cloud.cloudant.v1.model.DocsResultRow;
 import com.ibm.cloud.cloudant.v1.model.Document;
 import com.ibm.cloud.cloudant.v1.model.DocumentResult;
 import com.ibm.cloud.cloudant.v1.model.FindResult;
 import com.ibm.cloud.cloudant.v1.model.GetDatabaseInformationOptions;
-import com.ibm.cloud.cloudant.v1.model.PostAllDocsOptions;
 import com.ibm.cloud.cloudant.v1.model.PostDocumentOptions;
 import com.ibm.cloud.cloudant.v1.model.PostFindOptions;
 import com.ibm.cloud.cloudant.v1.model.PutDatabaseOptions;
@@ -163,27 +160,20 @@ class BookServiceTest {
     // ---- list / search ---------------------------------------------------------
 
     @Test
-    void listReturnsOnlyBookDocuments() {
-        DocsResultRow bookRow = row(bookDocument("doc-1", "1-a", 1965.0));
-        Document other = new Document();
-        other.setId("doc-2");
-        other.put("type", "invoice");
-        DocsResultRow otherRow = row(other);
-        DocsResultRow emptyRow = row(null);
-
-        AllDocsResult result = mock(AllDocsResult.class);
-        given(result.getRows()).willReturn(List.of(bookRow, otherRow, emptyRow));
-        ServiceCall<AllDocsResult> call = mockCall();
-        given(client.postAllDocs(any(PostAllDocsOptions.class))).willReturn(call);
+    void listQueriesBookTypeWithLimit() {
+        FindResult result = mock(FindResult.class);
+        given(result.getDocs()).willReturn(List.of(bookDocument("doc-1", "1-a", 1965.0)));
+        ServiceCall<FindResult> call = mockCall();
+        given(client.postFind(any(PostFindOptions.class))).willReturn(call);
         given(call.execute().getResult()).willReturn(result);
 
         List<Book> books = service.list(10);
 
         assertThat(books).containsExactly(new Book("doc-1", "1-a", "Dune", "Frank Herbert", 1965));
 
-        ArgumentCaptor<PostAllDocsOptions> captor = ArgumentCaptor.forClass(PostAllDocsOptions.class);
-        verify(client).postAllDocs(captor.capture());
-        assertThat(captor.getValue().includeDocs()).isTrue();
+        ArgumentCaptor<PostFindOptions> captor = ArgumentCaptor.forClass(PostFindOptions.class);
+        verify(client).postFind(captor.capture());
+        assertThat(captor.getValue().selector()).isEqualTo(Map.of("type", "book"));
         assertThat(captor.getValue().limit()).isEqualTo(10);
     }
 
@@ -195,12 +185,13 @@ class BookServiceTest {
         given(client.postFind(any(PostFindOptions.class))).willReturn(call);
         given(call.execute().getResult()).willReturn(result);
 
-        List<Book> books = service.findByAuthor("Frank Herbert");
+        List<Book> books = service.findByAuthor("Frank Herbert", 40);
 
         ArgumentCaptor<PostFindOptions> captor = ArgumentCaptor.forClass(PostFindOptions.class);
         verify(client).postFind(captor.capture());
         Map<String, Object> selector = captor.getValue().selector();
         assertThat(selector).isEqualTo(Map.of("type", "book", "author", "Frank Herbert"));
+        assertThat(captor.getValue().limit()).isEqualTo(40);
         assertThat(books).hasSize(1);
     }
 
@@ -272,12 +263,6 @@ class BookServiceTest {
             doc.put("publishedYear", year);
         }
         return doc;
-    }
-
-    private static DocsResultRow row(Document doc) {
-        DocsResultRow row = mock(DocsResultRow.class);
-        given(row.getDoc()).willReturn(doc);
-        return row;
     }
 
     static okhttp3.Response httpResponse(int code) {

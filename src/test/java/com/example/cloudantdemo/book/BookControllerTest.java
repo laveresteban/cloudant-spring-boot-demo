@@ -93,12 +93,30 @@ class BookControllerTest {
 
     @Test
     void searchByAuthorDelegatesToService() throws Exception {
-        given(bookService.findByAuthor(anyString())).willReturn(List.of());
+        given(bookService.findByAuthor(anyString(), anyInt())).willReturn(List.of());
 
         mvc.perform(get("/api/books/search").param("author", "Frank Herbert"))
                 .andExpect(status().isOk());
 
-        verify(bookService).findByAuthor("Frank Herbert");
+        verify(bookService).findByAuthor("Frank Herbert", 25);
+    }
+
+    @Test
+    void searchPassesLimitToService() throws Exception {
+        given(bookService.findByAuthor(anyString(), anyInt())).willReturn(List.of());
+
+        mvc.perform(get("/api/books/search").param("author", "Frank Herbert").param("limit", "50"))
+                .andExpect(status().isOk());
+
+        verify(bookService).findByAuthor("Frank Herbert", 50);
+    }
+
+    @Test
+    void searchRejectsLimitOutOfRange() throws Exception {
+        mvc.perform(get("/api/books/search").param("author", "Frank Herbert").param("limit", "201"))
+                .andExpect(status().isBadRequest());
+
+        verify(bookService, never()).findByAuthor(anyString(), anyInt());
     }
 
     @Test

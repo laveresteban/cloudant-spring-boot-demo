@@ -47,8 +47,9 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public List<Book> searchByAuthor(@RequestParam @NotBlank String author) {
-        return bookService.findByAuthor(author);
+    public List<Book> searchByAuthor(@RequestParam @NotBlank String author,
+                                     @RequestParam(defaultValue = "25") @Min(1) @Max(200) int limit) {
+        return bookService.findByAuthor(author, limit);
     }
 
     @GetMapping("/{id}")
